@@ -38,12 +38,15 @@ body { margin: 0; padding: 0; }
 border:1px solid white;
 }
 #placeName{
+
+}
+#density{
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
 }
 #population{
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
 }
 #income{
     grid-column: 2;
@@ -53,25 +56,41 @@ border:1px solid white;
     grid-column: 2;
     grid-row: 2;
 }
-
+.mapboxgl-ctrl-geocoder--input{
+    height:30px;
+}
+.mapboxgl-ctrl-geocoder{
+    width:120%;
+}
+.mapboxgl-ctrl-geocoder--icon-search {
+    top: 5px;
+    left: 5px;
+}
 </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="dataSection" id="placeName">placeName</div>
     <div id="data">
-        <div class="dataSection" id="placeName">placeName</div>
         <div class="dataSection" id="population">population</div>
+        <div class="dataSection" id="density">density</div>
+
+
         <div class="dataSection" id="income">income</div>
         <div class="dataSection" id="age">age</div>
     </div>
 <script>
 
 
-    Promise.all([d3.json("se_pop_age_income.json")])
+    Promise.all([d3.json("data/se_2022_country.json"),d3.json("data/se_2022_state.json"),
+    d3.json("data/se_2022_county.json"),d3.json("data/se_2022_tract.json")
+    ])
     .then(function(data){
         
-        var basics = data[0]
-      //  console.log(basics)
+        var country = data[0]
+        var state = data[1]
+        var county = data[2]
+        var tract = data[3]
         //geolocation on load code from https://stackoverflow.com/questions/63957193/getting-user-location-on-opening-map-in-mapbox
         mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
             const map = new mapboxgl.Map({
@@ -108,7 +127,7 @@ border:1px solid white;
            // console.log("on results")
             map.once("moveend",function(){
                 let centerXY = getXYAtCenter()        
-            getFeature(map, centerXY,basics)
+            getFeature(map, centerXY,data)
             })
 
             })
@@ -133,7 +152,7 @@ border:1px solid white;
         }       
         map.once("moveend",function(){
            // console.log("test")
-            getFeature(map, centerXY,basics)
+            getFeature(map, centerXY,data)
     })
         d3.selectAll(".mapboxgl-ctrl-bottom-left").remove()
         map.setFilter('tracts-highlight', ['==', 'AFFGEOID', 0]);
@@ -141,7 +160,7 @@ border:1px solid white;
        //console.log( map.getStyle().layers)
         map.on('click', (e) => {
             //console.log(e.point)
-            getFeature(map, e.point,basics)
+            getFeature(map, e.point,data)
         });
     })
 
@@ -214,17 +233,65 @@ function getFeature(map, point,data){
 function getFeatureData(geoid,data){
     // console.log(geoid)
     // console.log(data)
-    var placeName = data[geoid.replace("1400000US","")]["name"]
-    var population = data[geoid.replace("1400000US","")]["totalPop"]
-    var income = data[geoid.replace("1400000US","")]['mIncome']
-    var age = data[geoid.replace("1400000US","")]['mAge']
-    var density = data[geoid.replace("1400000US","")]['density']
+    // for(var d in data){
+    //     console.log(data[d])
+    // }
+
+
+
+    var stateGeoid = geoid.replace("1400000US","").slice(0,2)
+        var countyGeoid = geoid.replace("1400000US","").slice(0,5)
+
+    var nationalDensity = data[0]["US"]['density']
+    var nationalIncome = data[0]["US"]['mIncome']
+    var nationalAge = data[0]["US"]['mAge']
+
+        var stateDensity = data[1][stateGeoid]['density']
+        var stateIncome = data[1][stateGeoid]['mIncome']
+        var stateAge = data[1][stateGeoid]['mAge']
+        
+        var countyDensity = data[2][countyGeoid]['density']
+        var countyIncome = data[2][countyGeoid]['mIncome']
+        var countyAge = data[2][countyGeoid]['mAge']
+
+
+        
+    var placeName = data[3][geoid.replace("1400000US","")]["name"]
+    var population = data[3][geoid.replace("1400000US","")]["totalPop"]
+    var income = data[3][geoid.replace("1400000US","")]['mIncome']
+    var age = data[3][geoid.replace("1400000US","")]['mAge']
+    var density = data[3][geoid.replace("1400000US","")]['density']
+
+    if(density>10000){
+        var densityK = (density/1000).toFixed(0)
+    }
+    else if(density>5000){
+        var densityK = (density/1000).toFixed(1)
+    }
     //console.log(income, population)
 
     d3.select("#placeName").html("<strong>"+placeName.split(",").join("<br>"))
     d3.select("#population").html("<span class=\"highlight\">"+numberWithCommas(population)+"</span> <br>Residents")
-    d3.select("#income").html("Median Income<br> <span class=\"highlight\">$"+numberWithCommas(income)+"</span>")
-    d3.select("#age").html("Median Age<br> <span class=\"highlight\">"+age+"</span>")
+    d3.select("#income").html("Median Income<br> <span class=\"highlight\">$"
+        +numberWithCommas(income)+"</span>"
+        +"<br><br>nation: $"+numberWithCommas(nationalIncome)
+        +"<br>state: $"
+        +numberWithCommas(stateIncome)
+        +"<br>county: $"+numberWithCommas(countyIncome)+"<br>")
+  
+    d3.select("#age").html("Median Age<br> <span class=\"highlight\">"
+        +age
+        +"</span><br><br>nation:"+nationalAge
+        +"<br>state: "+stateAge+"<br>county:"+countyAge+"<br>")
+
+    d3.select("#density").html("<span class=\"highlight\">"
+        +densityK
+        +"K</span><br>residents/square mile<br><br>nation:"
+        +(nationalDensity/1000).toFixed(1)
+        +"K<br>state:"
+        +(stateDensity/1000).toFixed(1)
+        +"K<br>county:"
+        +(countyDensity/1000).toFixed(1)+"K<br>")
     
 }
 
