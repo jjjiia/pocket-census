@@ -16,19 +16,44 @@ body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; height:50%; }
 #data{
     position:absolute;
+    width:100%;
     top:50%;
-    padding:30px;
-    font-size:24px;
+    padding:0px;
+    font-size:16px;
     font-family:sans-serif;
     letter-spacing:1px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
 }
 .highlight{
-    color:red;
     font-weight:bold;
+    font-size:40px
 }
 .dataSection{
     padding:10px;
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:2px;
+border:1px solid white;
 }
+#placeName{
+    grid-column: 1;
+    grid-row: 1;
+}
+#population{
+    grid-column: 1;
+    grid-row: 2;
+}
+#income{
+    grid-column: 2;
+    grid-row: 1;
+}
+#age{
+    grid-column: 2;
+    grid-row: 2;
+}
+
 </style>
 </head>
 <body>
@@ -184,9 +209,9 @@ function getFeatureData(geoid,data){
     //console.log(income, population)
 
     d3.select("#placeName").html("<strong>"+placeName.split(",").join("<br>"))
-    d3.select("#population").html("<span class=\"highlight\">"+numberWithCommas(population)+"</span> Residents")
-    d3.select("#income").html("Median Income: <span class=\"highlight\">$"+numberWithCommas(income)+"</span>")
-    d3.select("#age").html("Median Age: <span class=\"highlight\">"+age+"</span>")
+    d3.select("#population").html("<span class=\"highlight\">"+numberWithCommas(population)+"</span> <br>Residents")
+    d3.select("#income").html("Median Income<br> <span class=\"highlight\">$"+numberWithCommas(income)+"</span>")
+    d3.select("#age").html("Median Age<br> <span class=\"highlight\">"+age+"</span>")
     
 }
 
