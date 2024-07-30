@@ -83,12 +83,14 @@ border:1px solid white;
             });
 
             //add search
-            // map.addControl(
-            // new MapboxGeocoder({
-            // accessToken: mapboxgl.accessToken,
-            // mapboxgl: mapboxgl
-            // })
-            // );
+            var geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl
+            })
+
+            map.addControl(
+          geocoder
+            );
             // Add geolocate control to the map.
             map.addControl(
                 new mapboxgl.GeolocateControl({
@@ -101,6 +103,17 @@ border:1px solid white;
                     showUserHeading: true
                 })
         );
+        geocoder.on('results', function(results) {
+            //console.log(results);
+           // console.log("on results")
+            map.once("moveend",function(){
+                let centerXY = getXYAtCenter()        
+            getFeature(map, centerXY,basics)
+            })
+
+            })
+                  
+
         map.on('load', () => {
         let centerXY = getXYAtCenter()        
         let coordinates = 0
