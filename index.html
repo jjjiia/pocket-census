@@ -5,15 +5,18 @@
 <title>Locate the user</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <script src="//d3js.org/d3.v7.min.js"></script>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&display=swap" rel="stylesheet">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css"><style>
 
 
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; height:50%; }
+body { margin: 0; padding: 0; background-color:#000000; }
+#map { position: absolute; top: 0; 
+    bottom: 0; width: 100%; height:50%; }
 #data{
     position:absolute;
     width:100%;
@@ -25,28 +28,34 @@ body { margin: 0; padding: 0; }
     display: grid;
     grid-template-columns: repeat(2, 1fr);
 }
-.highlight{
-    font-weight:bold;
-    font-size:40px
-}
+
 .dataSection{
     padding:10px;
-    background-color:black;
-    color:white;
+    background-color:#000000;
+    color:#000000;
     text-align:center;
     padding:10px;
-    border:1px solid white;
+    border:1px solid #000000;
+    font-family: "Edu AU VIC WA NT Hand", cursive;
+    font-weight:200;
+    line-height:120%;
+}
+.highlight{
+    font-weight:bold;
+    font-size:30px;
+    /* font-family: "helvetica"; */
+    line-height:130%;
+
 }
 #placeName{
     grid-column: 1;
     grid-row: 1;
-    background-color:#4285F4;
-    font-size:24px;
+    font-size:20px;
+    font-weight:700;
 }
 #density{
     grid-column: 1;
     grid-row: 2;
-    background-color:#34a853;
 }
 #population{
     grid-column: 1;
@@ -55,13 +64,10 @@ body { margin: 0; padding: 0; }
 #income{
     grid-column: 2;
     grid-row: 1;
-    background-color:#ea4335;
-
 }
 #age{
     grid-column: 2;
     grid-row: 2;
-    background-color:#fbbc05;
 }
 .mapboxgl-ctrl-geocoder--input{
     height:30px;
@@ -221,11 +227,13 @@ function getFeature(map, point,data){
             // console.log(selectedFeatures[0])
             // console.log(selectedFeatures[0].geometry.coordinates)
             let coordinates = selectedFeatures[0].geometry.coordinates[0];
-            
+            const padding = { left: 0, right: 0, top: 50, bottom: 0 }; //<--- padding
+
             let bounds = coordinates.reduce(function(bounds, coord) {
                     return bounds.extend(coord);
                 }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]))
-                map.fitBounds(bounds);
+                map.fitBounds(bounds,{
+                    padding});
 
             const affgeoid = selectedFeatures[0].properties.AFFGEOID
             //console.log(affgeoid)
@@ -268,16 +276,28 @@ function getFeatureData(geoid,data){
     var age = data[3][geoid.replace("1400000US","")]['mAge']
     var density = data[3][geoid.replace("1400000US","")]['density']
 
-    d3.select("#placeName").html("<strong>"+placeName.split(",").join("<br>"))
+    var colors = ["#99e94f","#4fe4e4","#e2d363","#8ae79e"]
+    var colors =["#49e452",
+"#7adf4b",
+"#7fd77e",
+"#71d5bb"]
+
+    d3.select("#placeName")
+    .style("background-color",colors[0])
+    .html("<strong>"+placeName.split(",").join("<br>"))
     //d3.select("#population").html("<span class=\"highlight\">"+numberWithCommas(population)+"</span> <br>Residents")
-    d3.select("#income").html("Median Income<br> <span class=\"highlight\">$"
+    d3.select("#income")
+    .style("background-color",colors[1])
+    .html("Median Income<br> <span class=\"highlight\">$"
         +numberWithCommas(income)+"</span>"
         +"<br><br>nation: $"+numberWithCommas(nationalIncome)
         +"<br>state: $"
         +numberWithCommas(stateIncome)
         +"<br>county: $"+numberWithCommas(countyIncome)+"<br>")
   
-    d3.select("#age").html("Median Age<br> <span class=\"highlight\">"
+    d3.select("#age")
+    .style("background-color",colors[2])
+    .html("Median Age<br> <span class=\"highlight\">"
         +Math.round(age)
         +"</span><br> years old<br>"
         +"<br>county:"+Math.round(countyAge)
@@ -285,7 +305,9 @@ function getFeatureData(geoid,data){
         +"<br>nation:"+Math.round(nationalAge)
         +"<br>")
 
-    d3.select("#density").html("Density<br><span class=\"highlight\">"
+    d3.select("#density")
+    .style("background-color",colors[3])
+    .html("Density<br><span class=\"highlight\">"
         +formatToK(density)
         +"</span><br>residents/mile<sup>2</sup><br>"
         +"<br>county:"
