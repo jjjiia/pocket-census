@@ -25,15 +25,19 @@ body { margin: 0; padding: 0; background-color:#000000; }
     font-size:16px;
     font-family:sans-serif;
     letter-spacing:1px;
-    display: grid;
+}
+#grid{
     grid-template-columns: repeat(2, 1fr);
+    width:100%;
+    display: grid;
+
 }
 
 .dataSection{
     padding:10px;
     color:#ffffff;
     padding:10px;
-    border-top:1px solid #ffffff;
+    border-bottom:2px solid #ffffff;
     font-family: "Edu AU VIC WA NT Hand", cursive;
     font-weight:200;
     line-height:130%;
@@ -43,22 +47,13 @@ body { margin: 0; padding: 0; background-color:#000000; }
     font-size:30px;
     /* font-family: "helvetica"; */
     line-height:130%;
-    color:#4fe4e4;
+    color:#e4b640;
 }
 #placeName{
-    grid-column: 1;
-    grid-row: 1;
-    font-size:20px;
-    font-weight:700;
-    color:#d5503d;
-}
-#placeName2{
-    grid-column: 2;
-    grid-row: 1;
-    font-size:20px;
-    font-weight:700;
-    color:#d5503d;
 
+    font-size:20px;
+    font-weight:700;
+    color:#d5503d;
 }
 #density{
     grid-column: 1;
@@ -99,16 +94,18 @@ body { margin: 0; padding: 0; background-color:#000000; }
     <div id="map"></div>
     <div id="data">
         <div class="dataSection" id="placeName">placeName</div>
-        <div class="dataSection" id="placeName2">placeName</div>
-        <!-- <div class="dataSection" id="population">population</div> -->
-        <div class="dataSection" id="density">density</div>
-        <div class="dataSection" id="densityCompare">density</div>
+        <!-- <div class="dataSection" id="placeName2">placeName</div> -->
+        <div id="grid">
+            <!-- <div class="dataSection" id="population">population</div> -->
+            <div class="dataSection" id="density">density</div>
+            <div class="dataSection" id="densityCompare">density</div>
 
 
-        <div class="dataSection" id="income">income</div>
-        <div class="dataSection" id="incomeCompare">income</div>
-        <div class="dataSection" id="age">age</div>
-        <div class="dataSection" id="ageCompare">age</div>
+            <div class="dataSection" id="income">income</div>
+            <div class="dataSection" id="incomeCompare">income</div>
+            <div class="dataSection" id="age">age</div>
+            <div class="dataSection" id="ageCompare">age</div>
+        </div>
     </div>
 <script>
 
@@ -303,9 +300,9 @@ function getFeatureData(geoid,data){
 
     d3.select("#placeName")
    // .style("background-color",colors[0])
-    .html(placeName.split(",")[0])
+    .html(placeName.split(",")[0]+"<br>"+placeName.split(",")[1]+","+placeName.split(",")[2])
     
-     d3.select("#placeName2").html(placeName.split(",")[1]+"<br>"+placeName.split(",")[2])
+   //  d3.select("#placeName2").html(placeName.split(",")[1]+"<br>"+placeName.split(",")[2])
     //d3.select("#population").html("<span class=\"highlight\">"+numberWithCommas(population)+"</span> <br>Residents")
     d3.select("#income")
    // .style("background-color",colors[1])
