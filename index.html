@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Locate the user</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<script src="//d3js.org/d3.v7.min.js"></script>
+<script src="//d3js.org/d3.v6.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&display=swap" rel="stylesheet">
@@ -311,10 +311,10 @@ function getFeatureData(geoid,data){
 
         d3.select("#incomeCompare")
         .html(
-        "nation: $"+numberWithCommas(nationalIncome)
-        +"<br>state: $"
-        +numberWithCommas(stateIncome)
-        +"<br>county: $"+numberWithCommas(countyIncome)+"<br>")
+        "nation: $"+numberWithCommas(nationalIncome))
+        // +"<br>state: $"
+        // +numberWithCommas(stateIncome)
+        // +"<br>county: $"+numberWithCommas(countyIncome)+"<br>")
   
     d3.select("#age")
    // .style("background-color",colors[2])
@@ -324,10 +324,11 @@ function getFeatureData(geoid,data){
 
         
         d3.select("#ageCompare")
-.html("county: "+Math.round(countyAge)
-        +"<br>state: "+Math.round(stateAge)
-        +"<br>nation: "+Math.round(nationalAge)
-        +"<br>")
+.html(
+    // "county: "+Math.round(countyAge)
+    //     +"<br>state: "+Math.round(stateAge)
+        "nation: "+Math.round(nationalAge)
+        )
 
     d3.select("#density")
    // .style("background-color",colors[3])
@@ -335,14 +336,52 @@ function getFeatureData(geoid,data){
         +formatToK(density)
         +"</span>")
      d3.select("#densityCompare")
-     .html("county: "
-        +formatToK(countyDensity)
-        +"<br>state: "
-        +formatToK(stateDensity)
-        +"<br>nation: "
-        +formatToK(nationalDensity)
+     .html("*"
+        // "county: "
+        // +formatToK(countyDensity)
+        // +"<br>state: "
+        // +formatToK(stateDensity)
+        //  "<br>nation: "
+        // +formatToK(nationalDensity)
         )
+
+        var tempData = [3,6,3,6,3,6,3,6,3,6,3]
+        lineChart(tempData,"#densityCompare")
+        lineChart(tempData,"#ageCompare")
+        lineChart(tempData,"#incomeCompare")
+        
     
+}
+function lineChart(data,div){
+    var width = window.innerWidth/2-20
+   var svg =  d3.select(div).append("svg").attr('width',width).attr("height",30)
+   var xScale = d3.scaleLinear().domain([0,12]).range([0,width])
+   svg.append("text").text("2009").attr("x",2).attr("y",30)
+   .attr("fill","white")
+   .attr("font-size","10px")
+
+   svg.append("text").text("2024").attr("x",width-30).attr("y",30)
+   .attr("fill","white")
+.attr("font-size","10px")
+
+   svg.selectAll(".dot")
+   .data(data)
+   .enter()
+   .append("circle")
+   .attr("cx",function(d,i){return xScale(i+1)})
+   .attr("cy",function(d,i){return d*2})
+   .attr('r',3)
+   .attr("fill","white")
+
+   svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(function(d,i){return xScale(i+1)})
+        .y(function(d,i){return d*2})
+        )
 }
 
 function formatToK(density){
