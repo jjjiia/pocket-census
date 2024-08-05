@@ -138,9 +138,8 @@ body { margin: 0; padding: 0; background-color:#000000; }
             map.addControl(
           geocoder
             );
-            // Add geolocate control to the map.
-            map.addControl(
-                new mapboxgl.GeolocateControl({
+
+            var geoLocator = new mapboxgl.GeolocateControl({
                     positionOptions: {
                         enableHighAccuracy: true
                     },
@@ -149,7 +148,16 @@ body { margin: 0; padding: 0; background-color:#000000; }
                     // Draw an arrow next to the location dot to indicate which direction the device is heading.
                     showUserHeading: true
                 })
+            // Add geolocate control to the map.
+            map.addControl(
+                geoLocator
         );
+        geoLocator.on('geolocate',function(a){
+            map.once("moveend",function(){
+                let centerXY = getXYAtCenter()        
+            getFeature(map, centerXY,data)
+            })
+        })
         geocoder.on('results', function(results) {
             //console.log(results);
            // console.log("on results")
@@ -311,33 +319,12 @@ function getFeatureData(geoid,data){
             densityTimeline.push(parseFloat(data[year]["density"]))
             ageTimeline.push(parseFloat(data[year]["mAge"]))
             incomeTimeline.push(parseFloat(data[year]["mIncome"]))
-            
         }
 
         lineChart(densityTimeline,"#densityCompare")
         lineChart(ageTimeline,"#ageCompare")
-        lineChart(incomeTimeline,"#incomeCompare")
-        
- })
-
-
-
-    // var nationalDensity = data[0]["US"]['density']
-    // var nationalIncome = data[0]["US"]['mIncome']
-    // var nationalAge = data[0]["US"]['mAge']
-
-    //     var stateDensity = data[1][stateGeoid]['density']
-    //     var stateIncome = data[1][stateGeoid]['mIncome']
-    //     var stateAge = data[1][stateGeoid]['mAge']
-        
-    //     var countyDensity = data[2][countyGeoid]['density']
-    //     var countyIncome = data[2][countyGeoid]['mIncome']
-    //     var countyAge = data[2][countyGeoid]['mAge']
-
-
-        
-   
-    
+        lineChart(incomeTimeline,"#incomeCompare")     
+ })    
 }
 function lineChart(data,div){
     var width = window.innerWidth/2
