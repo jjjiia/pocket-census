@@ -97,14 +97,14 @@ body { margin: 0; padding: 0; background-color:#000000; }
         <!-- <div class="dataSection" id="placeName2">placeName</div> -->
         <div id="grid">
             <!-- <div class="dataSection" id="population">population</div> -->
-            <div class="dataSection" id="density">density</div>
-            <div class="dataSection" id="densityCompare">density</div>
+            <div class="dataSection" id="density"></div>
+            <div class="dataSection" id="densityCompare"></div>
 
 
-            <div class="dataSection" id="income">income</div>
-            <div class="dataSection" id="incomeCompare">income</div>
-            <div class="dataSection" id="age">age</div>
-            <div class="dataSection" id="ageCompare">age</div>
+            <div class="dataSection" id="income"></div>
+            <div class="dataSection" id="incomeCompare"></div>
+            <div class="dataSection" id="age"></div>
+            <div class="dataSection" id="ageCompare"></div>
         </div>
     </div>
 <script>
@@ -261,42 +261,21 @@ function getFeature(map, point,data){
 }
 
 function getFeatureData(geoid,data){
-    // console.log(geoid)
-    // console.log(data)
-    // for(var d in data){
-    //     console.log(data[d])
-    // }
+  
+ d3.json("tract_files/"+geoid.replace("1400000US","")+".json")
+ .then(function(data){
 
-
-
-    var stateGeoid = geoid.replace("1400000US","").slice(0,2)
+        var stateGeoid = geoid.replace("1400000US","").slice(0,2)
         var countyGeoid = geoid.replace("1400000US","").slice(0,5)
 
-    var nationalDensity = data[0]["US"]['density']
-    var nationalIncome = data[0]["US"]['mIncome']
-    var nationalAge = data[0]["US"]['mAge']
-
-        var stateDensity = data[1][stateGeoid]['density']
-        var stateIncome = data[1][stateGeoid]['mIncome']
-        var stateAge = data[1][stateGeoid]['mAge']
-        
-        var countyDensity = data[2][countyGeoid]['density']
-        var countyIncome = data[2][countyGeoid]['mIncome']
-        var countyAge = data[2][countyGeoid]['mAge']
-
-
-        
-    var placeName = data[3][geoid.replace("1400000US","")]["name"]
-    var population = data[3][geoid.replace("1400000US","")]["totalPop"]
-    var income = data[3][geoid.replace("1400000US","")]['mIncome']
-    var age = data[3][geoid.replace("1400000US","")]['mAge']
-    var density = data[3][geoid.replace("1400000US","")]['density']
+        var placeName = data["name"]
+    var population = data["2022"]["totalPop"]
+    var income = data["2022"]['mIncome']
+    var age = data["2022"]['mAge']
+    var density = data["2022"]['density']
 
     var colors = ["#99e94f","#4fe4e4","#e2d363","#8ae79e"]
-    var colors =["#49e452",
-"#7adf4b",
-"#7fd77e",
-"#71d5bb"]
+    var colors =["#49e452","#7adf4b","#7fd77e","#71d5bb"]
 
     d3.select("#placeName")
    // .style("background-color",colors[0])
@@ -309,12 +288,7 @@ function getFeatureData(geoid,data){
     .html("Median Income<br> <span class=\"highlight\">$"
         +numberWithCommas(income)+"</span>")
 
-        d3.select("#incomeCompare")
-        .html(
-        "nation: $"+numberWithCommas(nationalIncome))
-        // +"<br>state: $"
-        // +numberWithCommas(stateIncome)
-        // +"<br>county: $"+numberWithCommas(countyIncome)+"<br>")
+    
   
     d3.select("#age")
    // .style("background-color",colors[2])
@@ -322,45 +296,64 @@ function getFeatureData(geoid,data){
         +Math.round(age)
         +"</span> years old")
 
-        
-        d3.select("#ageCompare")
-.html(
-    // "county: "+Math.round(countyAge)
-    //     +"<br>state: "+Math.round(stateAge)
-        "nation: "+Math.round(nationalAge)
-        )
 
     d3.select("#density")
    // .style("background-color",colors[3])
     .html("Residents per mile<sup>2</sup><br><span class=\"highlight\">"
         +formatToK(density)
         +"</span>")
-     d3.select("#densityCompare")
-     .html("*"
-        // "county: "
-        // +formatToK(countyDensity)
-        // +"<br>state: "
-        // +formatToK(stateDensity)
-        //  "<br>nation: "
-        // +formatToK(nationalDensity)
-        )
+   
+        var densityTimeline = []
+        var ageTimeline = []
+        var incomeTimeline = []
 
-        var tempData = [3,6,3,6,3,6,3,6,3,6,3]
-        lineChart(tempData,"#densityCompare")
-        lineChart(tempData,"#ageCompare")
-        lineChart(tempData,"#incomeCompare")
+        for(var year = 2010; year<=2022; year++){
+            densityTimeline.push(parseFloat(data[year]["density"]))
+            ageTimeline.push(parseFloat(data[year]["mAge"]))
+            incomeTimeline.push(parseFloat(data[year]["mIncome"]))
+            
+        }
+
+        lineChart(densityTimeline,"#densityCompare")
+        lineChart(ageTimeline,"#ageCompare")
+        lineChart(incomeTimeline,"#incomeCompare")
         
+ })
+
+
+
+    // var nationalDensity = data[0]["US"]['density']
+    // var nationalIncome = data[0]["US"]['mIncome']
+    // var nationalAge = data[0]["US"]['mAge']
+
+    //     var stateDensity = data[1][stateGeoid]['density']
+    //     var stateIncome = data[1][stateGeoid]['mIncome']
+    //     var stateAge = data[1][stateGeoid]['mAge']
+        
+    //     var countyDensity = data[2][countyGeoid]['density']
+    //     var countyIncome = data[2][countyGeoid]['mIncome']
+    //     var countyAge = data[2][countyGeoid]['mAge']
+
+
+        
+   
     
 }
 function lineChart(data,div){
-    var width = window.innerWidth/2-20
-   var svg =  d3.select(div).append("svg").attr('width',width).attr("height",30)
-   var xScale = d3.scaleLinear().domain([0,12]).range([0,width])
-   svg.append("text").text("2009").attr("x",2).attr("y",30)
+    var width = window.innerWidth/2
+    var height = 60
+    var max = d3.max(data)
+    var min = d3.min(data)
+    var xScale = d3.scaleLinear().domain([0,11]).range([0,width-60])
+    var yScale = d3.scaleLinear().domain([min,max]).range([0,height-20])
+
+    d3.selectAll(div+"svg").remove()
+   var svg =  d3.select(div).append("svg").attr("id",div.replace("#","")+"svg").attr('width',width).attr("height",height)//.style("background-color","black")
+   svg.append("text").text("2009").attr("x",2).attr("y",height)
    .attr("fill","white")
    .attr("font-size","10px")
 
-   svg.append("text").text("2024").attr("x",width-30).attr("y",30)
+   svg.append("text").text("2024").attr("x",width-30).attr("y",height)
    .attr("fill","white")
 .attr("font-size","10px")
 
@@ -368,9 +361,11 @@ function lineChart(data,div){
    .data(data)
    .enter()
    .append("circle")
-   .attr("cx",function(d,i){return xScale(i+1)})
-   .attr("cy",function(d,i){return d*2})
-   .attr('r',3)
+   .attr("cx",function(d,i){return xScale(i)+30})
+   .attr("cy",function(d,i){
+    
+    return height- yScale(d)-15})
+   .attr('r',2)
    .attr("fill","white")
 
    svg.append("path")
@@ -379,8 +374,8 @@ function lineChart(data,div){
       .attr("stroke", "white")
       .attr("stroke-width", 1.5)
       .attr("d", d3.line()
-        .x(function(d,i){return xScale(i+1)})
-        .y(function(d,i){return d*2})
+        .x(function(d,i){return xScale(i)+30})
+        .y(function(d,i){return height- yScale(d)-15})
         )
 }
 
