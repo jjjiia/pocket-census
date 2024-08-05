@@ -49,6 +49,10 @@ body { margin: 0; padding: 0; background-color:#000000; }
     line-height:130%;
     color:#e4b640;
 }
+#dataDate{
+    color:#fff;
+    line-height:100%;
+}
 #placeName{
 
     font-size:20px;
@@ -88,12 +92,23 @@ body { margin: 0; padding: 0; background-color:#000000; }
     top: 5px;
     left: 5px;
 }
+#screen{
+    width:100%;
+    height:100%
+    background-color:red;
+}
 </style>
 </head>
-<body>
+<body>0-
+    <div id="screen">
+        Pocket Census
+        <br> This map shows the population density, median age, and median income of any census tract. 
+        <br>Allow the map to use your location or search for an address.
+    </div>
     <div id="map"></div>
     <div id="data">
         <div class="dataSection" id="placeName">placeName</div>
+        <div class="dataSection" id="dataDate">Showing latest data, for 2022</div>
         <!-- <div class="dataSection" id="placeName2">placeName</div> -->
         <div id="grid">
             <!-- <div class="dataSection" id="population">population</div> -->
@@ -294,7 +309,7 @@ function getFeatureData(geoid,data){
     d3.select("#income")
    // .style("background-color",colors[1])
     .html("Median Income<br> <span class=\"highlight\">$"
-        +numberWithCommas(income)+"</span>")
+        +formatToK(income)+"</span>")
 
     
   
@@ -331,29 +346,30 @@ function lineChart(data,div){
     var height = 60
     var max = d3.max(data)
     var min = d3.min(data)
-    var xScale = d3.scaleLinear().domain([0,11]).range([0,width-60])
+    var xScale = d3.scaleLinear().domain([0,11]).range([0,width-80])
     var yScale = d3.scaleLinear().domain([min,max]).range([0,height-20])
 
     d3.selectAll(div+"svg").remove()
-   var svg =  d3.select(div).append("svg").attr("id",div.replace("#","")+"svg").attr('width',width).attr("height",height)//.style("background-color","black")
-   svg.append("text").text("2009").attr("x",2).attr("y",height)
-   .attr("fill","white")
-   .attr("font-size","10px")
+   var svg =  d3.select(div).append("svg")
+   .attr("id",div.replace("#","")+"svg")
+   .attr('width',width).attr("height",height)//.style("background-color","black")
+   svg.append("text").text("2009").attr("x",2)
+   .attr("y",height-yScale(data[0])-13)
+   .attr("fill","#fff")
+   .attr("font-size","11px")
 
-   svg.append("text").text("2024").attr("x",width-30).attr("y",height)
-   .attr("fill","white")
-.attr("font-size","10px")
+   svg.append("text")
+   .text(formatToK(data[0])).attr("x",2)
+   .attr("y",height-yScale(data[0]))
+   .attr("fill","#fff")
+   .attr("font-size","11px")
+   .attr("font-weight","700")
 
-   svg.selectAll(".dot")
-   .data(data)
-   .enter()
-   .append("circle")
-   .attr("cx",function(d,i){return xScale(i)+30})
-   .attr("cy",function(d,i){
-    
-    return height- yScale(d)-15})
-   .attr('r',2)
-   .attr("fill","white")
+   svg.append("text").text("2022").attr("x",width-35)
+   .attr("y",height+5-yScale(data[data.length-1]))
+   .attr("fill","#e4b640")
+    .attr("font-size","11px")
+   // .attr("font-weight","700")
 
    svg.append("path")
       .datum(data)
@@ -361,9 +377,31 @@ function lineChart(data,div){
       .attr("stroke", "white")
       .attr("stroke-width", 1.5)
       .attr("d", d3.line()
-        .x(function(d,i){return xScale(i)+30})
+        .x(function(d,i){return xScale(i)+40})
         .y(function(d,i){return height- yScale(d)-15})
         )
+   svg.selectAll(".dot")
+   .data(data)
+   .enter()
+   .append("circle")
+   .attr("cx",function(d,i){return xScale(i)+40})
+   .attr("cy",function(d,i){
+    
+    return height- yScale(d)-15})
+   .attr('r',function(d,i){
+    if(i==data.length-1){
+        return 5
+    }
+    return 2
+   })
+   .attr("fill",function(d,i){
+    if(i==data.length-1){
+        return "#e4b640"
+    }
+    return "#ffffff"
+   })
+
+
 }
 
 function formatToK(density){
