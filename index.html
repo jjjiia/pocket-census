@@ -141,6 +141,14 @@ mark {
 var randomCoordinates = [ [-122.24689831809374, 37.89256145766974], [-122.36222615317632, 37.93394836280966],[-122.46153305053694, 37.74394312138058],[-121.65207015143537, 37.13554904761523],[-121.54205519055574, 36.55202976610015],[-120.65707070486873, 35.29443841629026], [-122.28867987691714, 47.44239702059477],[-122.23394810207245, 47.40228807338363],[-122.19521535592547, 47.35353930211329],[-119.27683671315484, 46.96036061738829],[-93.30147033311653, 44.973279671691984],[-73.59244864377621, 40.7264567501239],[-73.67338784720143, 41.31268381010952],[-74.26199330223969, 40.8509334380831],[-76.49462018694263, 37.10296785476504],[-76.4834448906963, 37.09669801655782],[-77.34423546564001, 34.797161495220706],[-79.87036629328635, 32.92807487863156], [-83.10555874752264, 37.92378219618469],[-122.66627464607642, 47.63935329222812],[-87.0307188454547, 32.76224608025168], [-75.34629827874336, 38.60306493150086], [-92.40205315093243, 39.19194939707816],[-97.48715526782144, 37.28010326550013], [-72.85200661196458, 44.03093085309225],[-78.97836020691243, 38.316536048106414],[-71.46900074605642, 41.57775246936325], [-76.28845992282687, 39.6969254909534],[-76.87452917503936, 38.349343215479145], [-88.23679945138002, 41.42952630479063], [-87.10853202331555, 41.084219033529735],[-98.3802980780918, 40.30455908523082],[-89.66129164499972, 40.266197285761756],[-71.24644135420624, 41.6896533036796],[-122.96113493763866, 45.20904689389722],[-71.78303600158377, 41.98726650362786],[-79.15800706991877, 39.68376585613288],[-75.34629827874336, 38.60306493150086]]
 let coordinates = randomCoordinates[Math.round(Math.random()*randomCoordinates.length)]
 
+//if(location.has!=""){
+    var locationHashData = location.hash.replace("#","").split("_")
+    var urlCoords = [locationHashData[1],locationHashData[0]]
+//     coordinates  = urlCoords
+// }
+    
+
+
     Promise.all([d3.json("data/se_2022_country.json"),d3.json("data/se_2022_state.json"),
     d3.json("data/se_2022_county.json"),d3.json("data/se_2022_tract.json")
     ])
@@ -202,7 +210,13 @@ let coordinates = randomCoordinates[Math.round(Math.random()*randomCoordinates.l
 
         map.on('load', () => {
         //console.log(coordinates)
-        flyToUser([coordinates[1],coordinates[0]],map)
+        if(location.hash!=""){
+            flyToUser(urlCoords,map)
+        }else{
+            flyToUser([coordinates[1],coordinates[0]],map)
+
+        }
+
 
         // if (navigator.geolocation) {
         //     navigator.geolocation.getCurrentPosition(function(position) {
@@ -228,6 +242,9 @@ let coordinates = randomCoordinates[Math.round(Math.random()*randomCoordinates.l
 
        //console.log( map.getStyle().layers)
         map.on('click', (e) => {
+            window.location.hash =e.lngLat.lng+"_"+e.lngLat.lat ;
+
+            //console.log(location.hash)
             //console.log([e.lngLat.lng,e.lngLat.lat])
             getFeature(map, e.point,data)
         });
